@@ -1,0 +1,21 @@
+{
+ "qa_judge": "gpt-4o-mini-2024-07-18",
+ "metrics": {
+  "case": 42.46323529411765,
+  "object": 1.8382352941176472,
+  "EM": 39.705882352941174,
+  "EM-R": 43.504901960784316,
+  "class": 26.630434782608692,
+  "appearance": 36.70454545454545,
+  "geometry": 46.59090909090909,
+  "spatial": 46.83406113537117,
+  "existence": 45.023696682464454,
+  "functionality": null,
+  "n_cases": 816,
+  "n_objects": 272
+ },
+ "targets_dropped": 18,
+ "scenes_over_max_obj": [
+  "a0905fd9-66f7-2272-9dfb-0483fdcc54c7"
+ ]
+}

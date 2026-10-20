@@ -165,3 +165,9 @@ jobs/
 outputs/
 wandb/
 test.py
+
+# --- beacon3d (Beacon3D QA evaluation) ---
+# local cluster launchers, local paths/secrets and run logs (see env.sh.example)
+*.sbatch
+env.sh
+log/

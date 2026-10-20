@@ -10,7 +10,10 @@ from accelerate.scheduler import AcceleratedScheduler
 from accelerate.state import PartialState
 from accelerate.utils import DistributedType, recursively_apply
 from accelerate.utils.constants import TORCH_DISTRIBUTED_OPERATION_TYPES
-from torch._six import string_classes
+try:
+    from torch._six import string_classes
+except ImportError:   # torch >= 2.0 removed torch._six
+    string_classes = str
 from torch.utils.data import random_split
 try:
     from torch.optim.lr_scheduler import LRScheduler

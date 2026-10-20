@@ -1,264 +1,142 @@
-<h2 align="center">
-  <span><img src="assets/leo.svg" width="4%" style="transform: translate(0,9px)"></span><b>An Embodied Generalist Agent in 3D World</b>
-</h2>
+# LEO Benchmark Evaluation
 
-<h3 align="center">
-ICML 2024
-</h3>
+This is a fork of [LEO](https://github.com/embodied-generalist/embodied-generalist)
+("An Embodied Generalist Agent in 3D World", ICML 2024) whose purpose is to **evaluate the
+released LEO checkpoint on benchmarks the paper does not report**, under one reproducible
+setup, so its scores can be compared with other models on equal footing. Wired in so far:
+the QA half of [Beacon3D](https://beacon-3d.github.io/) (CVPR 2025; ScanNet, 3RScan,
+MultiScan). LEO generates text only (it has no object-ID or box output), so Beacon3D
+grounding is not evaluated.
 
-<div align="center" margin-bottom="6em">
-<a target="_blank" href="https://huangjy-pku.github.io/">Jiangyong Huang<sup>✶</sup></a>,
-<a target="_blank" href="https://silongyong.github.io/">Silong Yong<sup>✶</sup></a>,
-<a target="_blank" href="https://jeasinema.github.io/">Xiaojian Ma<sup>✶</sup></a>,
-<a target="_blank" href="https://github.com/Germany321">Xiongkun Linghu<sup>✶</sup></a>,
-<a target="_blank" href="https://xiaoyao-li.github.io/">Puhao Li</a>,
-<br/>
-<a target="_blank" href="https://github.com/jetpackfirstme">Yan Wang</a>,
-<a target="_blank" href="https://liqing-ustc.github.io/">Qing Li</a>,
-<a target="_blank" href="http://www.stat.ucla.edu/~sczhu/">Song-Chun Zhu</a>,
-<a target="_blank" href="https://buzz-beater.github.io/">Baoxiong Jia</a>,
-<a target="_blank" href="https://siyuanhuang.com/">Siyuan Huang</a>
+The upstream model, training and data code are untouched apart from a one-line torch-2
+compatibility fix in `common/misc.py`; everything this fork adds lives under
+[`beacon3d/`](beacon3d/), and the per-question outputs behind the numbers below are
+committed in [`beacon3d/results/`](beacon3d/results/).
 
-</div>
-&nbsp;
+Upstream LEO's own README is in the git history (`git show 567f2d8:README.md`).
 
-<div align="center">
-    <a href="https://arxiv.org/abs/2311.12871" target="_blank">
-    <img src="https://img.shields.io/badge/Paper-arXiv-deepgreen" alt="Paper arXiv"></a>
-    <a href="https://embodied-generalist.github.io" target="_blank">
-    <img src="https://img.shields.io/badge/Page-LEO-9cf" alt="Project Page"></a>
-    <a href="https://youtu.be/mlnjz4eSjB4?si=NN9z7TpkTPgBAzBw" target="_blank">
-    <img src="https://img.shields.io/badge/Video-YouTube-9966ff" alt="Video"></a>
-    <a href="https://huggingface.co/datasets/huangjy-pku/LEO_data/tree/main" target="_blank">
-    <img src="https://img.shields.io/badge/Data-LEO-blue" alt="Data"></a>
-    <a href="https://huggingface.co/datasets/huangjy-pku/LEO_data/tree/main" target="_blank">
-    <img src="https://img.shields.io/badge/Model-LEO-darkorange" alt="Model"></a>
-</div>
-&nbsp;
+## Results
 
-<div align="left">
-<img src="assets/teaser.png" width="99%" alt="LEO Teaser">
-</div>
+Released checkpoint `sft_noact.pth` (instruction-tuned, no embodied acting) from
+[huangjy-pku/LEO_data](https://huggingface.co/datasets/huangjy-pku/LEO_data), Vicuna-7B
+v1.1, PointNet++ backbone, no training or fine-tuning of any kind. All numbers are
+percentages.
 
-We introduce **LEO**, an **embodied multi-modal generalist agent** capable of **grounding**, **reasoning**, **chatting**, **planning**, and **acting** in the **3D world**. **LEO** is trained in a two-stage scheme: *(i) 3D vision-language (VL) alignment* and *(ii) 3D vision-language-action (VLA) instruction tuning*.
+### Beacon3D QA
 
-We meticulously collect extensive diverse data for training **LEO**. <sup>&dagger;</sup> indicates the task contains our generated data. See [Task and Data](#task-and-data) for details. We show the data statistics as below:
+GPT judge: **`gpt-4o-mini-2024-07-18`** (the evaluator's default is `gpt-4o-2024-11-20`).
+*Case* = GPT-Score ((mean 1–5 score − 1) / 4); *object* = share of objects whose three
+questions all score ≥ 4; EM / EM-R from the same evaluator; per-type columns are GPT-Score.
 
-| Dataset | Task | 2D required? | 3D assets | #data |
-| :---: | :---: | :---: | :---: | :---: |
-| *LEO-align* | object captioning | ✗ | Objaverse | 660k |
-|  | object referring<sup>&dagger;</sup> | ✗ | ScanNet + 3RScan | 354k |
-|  | scene captioning<sup>&dagger;</sup> | ✗ | 3RScan | 20k |
-| *LEO-instruct* | 3D captioning | ✗ | ScanNet | 37k |
-|  | 3D QA<sup>&dagger;</sup> | ✗ | ScanNet + 3RScan | 83k |
-|  | 3D dialogue<sup>&dagger;</sup> | ✗ | 3RScan | 11k |
-|  | task planning<sup>&dagger;</sup> | ✗ | 3RScan | 14k |
-|  | navigation | ✓ | MP3D | 60k |
-|  | manipulation | ✓ | CLIPort | 300k |
+| Domain | #Q | Case | Object | EM | EM-R | Class | App. | Geo. | Spa. | Exi. |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| ScanNet | 1155 | **52.94** | **11.17** | 49.00 | 52.21 | 19.14 | 63.96 | 53.16 | 51.89 | 54.29 |
+| 3RScan | 816 | **45.77** | **1.47** | 41.91 | 46.45 | 22.28 | 46.02 | 49.09 | 49.34 | 45.02 |
+| MultiScan | 477 | **28.56** | **0.63** | 25.58 | 27.88 | 7.66 | 33.58 | 58.33 | 27.94 | 28.39 |
+| Overall (pooled) | 2448 | 45.80 | 5.88 | 42.08 | 45.55 | 16.55 | 52.21 | 52.05 | 46.16 | 45.56 |
+| Overall (mean of 3) | | 42.43 | 4.42 | 38.83 | 42.18 | 16.36 | 47.85 | 53.53 | 43.06 | 42.57 |
 
+ScanNet also has 3 *functionality* questions (66.67). Beacon3D defines no cross-domain
+score; *pooled* treats all 2,448 questions (816 objects) as one set, *mean* averages the
+three domain numbers. Without a grounding run there is no grounding–QA chain analysis.
 
-## News
-**[2024.07]** We release a few [EAI data examples](https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/eai_data_example.zip) for demonstration purpose.
+### Read this before quoting the numbers
 
-**[2024.05]** **LEO** is accepted by ICML 2024.
+- **Protocol = LEO's own ScanQA / 3RScanQA evaluation.** LEO is fed ground-truth object
+  point clouds, and, exactly as `LeoScanQA` / `Leo3RScanQA` do at eval time, the objects in
+  the question's `object_ids` are placed **first** in the object sequence, followed by the
+  rest of the scene in id order, up to `max_obj_len = 60`. This is how LEO's published QA
+  numbers are produced, so the table above uses it, but the question-relevant objects are
+  annotation information the model would not have otherwise.
+- **No-hint control.** Same run with the objects purely in id order (`--no_hint`):
 
-**[2024.04]** We release the scripts for inference and scaling law analysis, [model weights](https://huggingface.co/datasets/huangjy-pku/LEO_data/tree/main), and training code of EAI tasks.
+  | Domain | Case | Object | EM | EM-R |
+  | --- | --- | --- | --- | --- |
+  | ScanNet | 45.15 | 7.01 | 41.82 | 44.59 |
+  | 3RScan | 42.46 | 1.84 | 39.71 | 43.50 |
+  | MultiScan | 26.26 | 0.63 | 22.85 | 26.21 |
+  | Overall (pooled) | 40.57 | 4.04 | 37.42 | 40.65 |
+  | Overall (mean of 3) | 37.96 | 3.16 | 34.79 | 38.10 |
 
-**[2024.03]** We release the code and [data](https://huggingface.co/datasets/huangjy-pku/LEO_data/tree/main). The embodied AI (EAI) tasks (navigation and manipulation) need further organization and will be released soon.
+  Every Beacon3D scene but one has ≤ 60 objects, so the control sees exactly the same
+  objects and only their order changes. The exception is 3RScan `a0905fd9-…` (73 objects),
+  where 18 questions lose their target object. The 7.8-point drop on ScanNet therefore
+  comes almost entirely from **position**: LEO has learned that the first object tokens are
+  the ones the question is about. Results in [`beacon3d/results/*_nohint/`](beacon3d/results/).
+- **No ego-view image**, as in LEO's own 3D QA evaluation (`img_masks = 0`).
+- **Scan data.** ScanNet: LEO's `pcd_with_global_alignment` release; 3RScan: LEO's
+  `3RScan-ours-align` release; MultiScan (LEO has none): SceneVerse's
+  `MultiScan/pcd_with_global_alignment`, which has the same `(points, colors,
+  instance_labels)` format and is loaded the way LEO loads 3RScan. All Beacon3D
+  `object_ids` exist in these files with the same class labels (checked for every
+  question). The 3RScan instance-to-label tables are identical to SceneVerse's.
+- **Determinism.** LEO subsamples 1,024 points per object at random; `infer.py` seeds
+  `random` / `numpy` with the question index, so a rerun reproduces the same inputs.
+  Decoding is LEO's trainer default (beam 5, repetition penalty 3.0, no sampling).
+- **Environment port.** The release pins torch 1.12.1+cu113, which has no Blackwell
+  kernels; this run used torch 2.7.1+cu128 with every other package at the version in
+  `requirements.txt` (transformers 4.28.1, peft 0.5.0, accelerate 0.26.1).
 
-**[2024.01]** We release a [Huggingface interactive demo](https://huggingface.co/spaces/embodied-generalist/LEO-Demo). Chat with **LEO** and enjoy yourself.
-
-## Get Started
-
-1. Clone Github repo.
-```shell
-git clone git@github.com:embodied-generalist/embodied-generalist.git
-cd embodied-generalist
-```
-
-2. Create `conda` environment and install dependencies.
-```shell
-conda create -n leo python=3.9
-conda activate leo
-
-# install PyTorch, take our version for example
-conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=11.3 -c pytorch
-
-# install other dependencies with pip
-pip install -r requirements.txt
-
-# install peft separately to escape its install_requires
-pip install peft==0.5.0 --no-deps
-```
-
-3. Install third party libraries (for point cloud backbones). Note that if the installation of `PointNext` fails, you can either 1) comment the line of importing `PointNext` in `model/pcd_backbone.py` or 2) download the [compiled file](https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/pointnet2_batch_cuda.cpython-39-x86_64-linux-gnu.so) and place it at `model/pointnext/cpp/pointnet2_batch/`, which may possibly help.
-
-```shell
-cd model
-
-# default PointNet++
-cd pointnetpp
-python setup.py install
-cd ..
-
-# optional: PointNext (if you want to substitute the default PointNet++)
-cd pointnext/cpp/pointnet2_batch
-python setup.py build_ext --inplace
-cd ../../../
-
-cd ..
-# sanity check
-python -c 'from model.pointnetpp.pointnetpp import PointNetPP'
-# for PointNext, run 'from model.pointnext.pointnext import PointNext'
-```
-
-4. Go through [task and data](#task-and-data), [model weights](#model-weights), and you are ready to [run](#running).
-
-## Task and Data
-**Data preparation.** The [data](https://huggingface.co/datasets/huangjy-pku/LEO_data/tree/main) includes two components: scan data and language annotations.
-- **Scan data.** To simplify the preparation and save storage, we streamline the scan data (point clouds and instance segments), which is less than 10G yet already sufficient for experiments on **LEO**. You can download the compressed files from the links below and arrange the data according to the illustration of scan data structure.
-  - **ScanNet**: [pcd_with_global_alignment](https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/pcd_with_global_alignment.zip), [mask (Mask3D proposals)](https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/mask.zip).
-  - **3RScan**: [3RScan-ours-align](https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/3RScan-ours-align.zip).
-  - **Cap3D**. Please refer to [Cap3D data](https://huggingface.co/datasets/tiange/Cap3D) for preparing the point clouds, where we use [pcs_pt](https://huggingface.co/datasets/tiange/Cap3D/tree/main/PointCloud_pt_zips). The corresponding annotation file (`Cap3D_automated_Objaverse_no3Dword.csv`) is included in our released annotations.
-```
-# scan data structure
-
-├── ${scannet_base}
-    ├── scan_data
-    │   └── pcd_with_global_alignment
-    │       ├── ${scan_id}.pth
-    └── mask
-        ├── ${scan_id}.mask.npz
-
-├── ${rscan_base}
-    └── 3RScan-ours-align
-        ├── ${scan_id}
-            ├── pcds.pth
-            ├── pcd-align.pth
-            └── inst_to_label.pth
-
-├── ${cap3d_root}
-    ├── Cap3D_pcs_pt
-    │   ├── ${obj_id}.pt
-    └── Cap3D_automated_Objaverse_no3Dword.csv   # included in annotations
-```
-
-- **Language annotations.** The annotations are categorized into two parts according to the training stage. We provide a [compressed file](https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/annotations.zip) that wraps up all the annotations, which should be organized in the following structure:
+## Repository layout
 
 ```
-# annotations structure
-
-├── ${alignment_base}
-    ├── obj_caption -> ${cap3d_root}
-    │   ├── Cap3D_pcs_pt
-    │   │   ├── ${obj_id}.pt
-    │   └── Cap3D_automated_Objaverse_no3Dword.csv
-    ├── obj_scene_caption
-    │   ├── 3rscan_prompted.json
-    │   ├── 3rscan_scanscribe.json
-    │   ├── scannet_referit3d_nr3d_train.json
-    │   └── scannet_referit3d_sr3d+_train.json
-    └── scene_caption
-        ├── 3rscan_scenecap_train.json
-        └── 3rscan_scenecap_val.json
-
-├── ${instruction_base}
-    ├── scan2cap
-    │   ├── scanrefer_train.json
-    │   ├── scanrefer_val.json
-    │   └── scanrefer_corpus.json
-    ├── scanqa
-    │   ├── ScanQA_v1.0_train.json
-    │   └── ScanQA_v1.0_val.json
-    ├── sqa3d
-    │   ├── v1_balanced_questions_train_scannetv2.json
-    │   ├── v1_balanced_questions_val_scannetv2.json
-    │   ├── v1_balanced_questions_test_scannetv2.json
-    │   ├── v1_balanced_sqa_annotations_train_scannetv2.json
-    │   ├── v1_balanced_sqa_annotations_val_scannetv2.json
-    │   ├── v1_balanced_sqa_annotations_test_scannetv2.json
-    │   └── axisAlignment.pth
-    ├── 3rscanqa
-    │   ├── 3rscan_qa_train.json
-    │   └── 3rscan_qa_val.json
-    ├── dialogue
-    │   ├── 3rscan_dialog_train.json
-    │   └── 3rscan_dialog_val.json
-    └── planning
-        ├── 3rscan_plan_train.json
-        └── 3rscan_plan_val.json
+beacon3d/
+├── Beacon3D/              vendored Beacon3D evaluators + data (bda1203, Apache-2.0; see VENDORED.md)
+├── build_env.sh           uv venv: torch 2.7.1+cu128, requirements.txt, PointNet++/PointNext ops
+├── download.sh            LEO weights, Vicuna-7B, ScanNet + 3RScan scan data from Hugging Face
+├── infer.py / run_infer.sh   LEO inference on the Beacon3D QA sets (protocol + no-hint control)
+├── score.py / score.sh    Beacon3D evaluate_qa.py with the GPT judge, per domain + overall
+└── results/
+    ├── <domain>[_nohint]/ infer_qa.json, infer_qa_processed.json, score_qa.txt, scores.json
+    ├── overall[_nohint]/  scores.json (pooled and mean)
+    ├── preds/             raw infer.py output (one jsonl row per question)
+    └── summary.json
+env.sh.example             every path / setting the scripts read
 ```
 
-**Data configurations.** After data preparation, check `configs/data/default.yaml` to update the paths, including `scan_family_base`, `rscan_base`, `alignment_base`
-and `instruction_base`.
+## Setup
 
-**Dataloaders.** The implementation of dataset per task lies in `data/datasets.py`, where `LeoMix` aggregates various datasets as the training dataset.
+### External dependencies (not in this repo)
 
-**EAI.** We release a small subset of EAI tasks with a few data examples for demonstration purpose. You can download [here](https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/eai_data_example.zip). It is recommended to put the extracted folders (`mp3d_objnav` and `cliport`) right inside the `instruction_base` path. Though the test in simulator is not incorporated yet, it is ready for the training and validation of EAI tasks.
+| What | Where it comes from | Variable |
+| --- | --- | --- |
+| `sft_noact.pth`, `pointnetpp_vil3dref.pth` | HF dataset `huangjy-pku/LEO_data` | `LEO_ROOT` (via `download.sh`) |
+| Vicuna-7B v1.1 | HF model `huangjy-pku/vicuna-7b` | `LEO_ROOT` (via `download.sh`) |
+| ScanNet / 3RScan point clouds | `pcd_with_global_alignment.zip`, `3RScan-ours-align.zip` in `LEO_data` | `LEO_ROOT` (via `download.sh`) |
+| MultiScan point clouds | [SceneVerse](https://github.com/scene-verse/SceneVerse) `MultiScan/` | `SCENEVERSE_DIR` |
+| GPT judge | OpenAI API | `OPENAI_API_KEY` |
 
+### Environment
 
-## Model Weights
-**Pretrained weights to load.**
-- **LLM**: [Vicuna-7B](https://huggingface.co/huangjy-pku/vicuna-7b/tree/main). We use Vicuna v1.1 from [FastChat](https://github.com/lm-sys/FastChat), which you can refer to for the access of Vicuna-13B or more advanced versions. Remember to update `cfg_path` in `configs/llm/*.yaml`.
-- **Point cloud backbone**: [PointNet++](https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/pointnetpp_vil3dref.pth), [PointBERT](https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/pointbert_pointllm.pth). We have not tried `PointNext`, but everything is ready except the pretrained weights. Remember to update `path` in `configs/vision3d/backbone/*.yaml`.
+```bash
+cp env.sh.example env.sh        # fill in paths; env.sh is gitignored
+bash beacon3d/build_env.sh      # on a GPU node with internet; compiles the point-cloud ops
+bash beacon3d/download.sh       # ~20 GB download, ~39 GB in $LEO_ROOT once unpacked
+```
 
-**Trained LEO weights.** We release two checkpoints [here](https://huggingface.co/datasets/huangjy-pku/LEO_data/tree/main):
-- `align.pth`: the checkpoint after the alignment stage, trained with LoRA.
-- `sft_noact.pth`: the checkpoint after the instruction tuning stage, based on `align.pth` and tuned without embodied acting tasks.
-
+`build_env.sh` needs CUDA ≥ 12.8 for Blackwell (`LEO_CUDA_HOME`). It compiles PointNet++
+from a temporary copy (upstream `setup.py` hard-codes architectures CUDA 12 cannot target)
+and pins `setuptools<81` (`openai-clip` imports `pkg_resources`).
 
 ## Running
-**Training.** The training pipeline is elaborated in `trainer/leo_trainer.py`. Make sure the config file `configs/default.yaml` is properly set up before running.
-- **General setup.** We use `wandb` as the default experiment logger. Remember to modify `logger.entity` to your account and init the `wandb`. Modify `name`, `note`, and `base_dir` for proper experiment output.
-- **Model.** The components of `LeoAgent` can be configured in `configs/llm`, `configs/vision2d` and `configs/vision3d`.
-- **Task.** You can configure the tasks by specifying a `yaml` in `configs/task`. You can also run new tasks by creating similar configs.
-- **GPU usage.** We run the experiments on 	NVIDIA A100-80GB and A800-80GB. Modify `dataloader` arguments for your GPU if necessary.
 
-We prepare some running scripts in `scripts/`, covering two-stage training and evaluation. The core is to run `launch.py` with proper arguments. There are three launch modes:
-```shell
-# python launch
-python launch.py --mode python --config configs/default.yaml <HYDRA_CONFIG>
+```bash
+# 1. inference on one GPU, LEO protocol then the no-hint control (~40 min in total on one RTX PRO 6000)
+bash beacon3d/run_infer.sh                       # -> outputs/beacon3d_<timestamp>/
+#    DOMAINS=scannet LIMIT=16 VARIANTS=hint OUT=outputs/smoke bash beacon3d/run_infer.sh   # smoke test
 
-# accelerate launch
-python launch.py --mode accelerate --config configs/default.yaml <HYDRA_CONFIG>
-
-# SLURM submitit launch, default
-python launch.py --mode submitit --config configs/default.yaml <HYDRA_CONFIG>
-
-# for example, run alignment with submitit
-python launch.py --mode submitit \
-                 --config configs/default.yaml \
-                 --name leo_tuning \ # job name
-                 --qos lv0b \   # QoS
-                 --time 48 \   # job execution duration (hour)
-                 --num_nodes 1 \
-                 --partition HGX \   # node type
-                 --gpu_per_node 4 \
-                 --mem_per_gpu 100 \   # memory per GPU
-                 --port 2050 \
-                 task=align \   # hydra: cfg.task, select task
-                 note=align_lora \   # hydra: cfg.note, for exp_dir
+# 2. score with the GPT judge (QA_MODEL, default gpt-4o-mini-2024-07-18)
+PREDS_DIR=outputs/beacon3d_<timestamp> bash beacon3d/score.sh
+#    -> beacon3d/results/{<domain>,<domain>_nohint,overall,overall_nohint}/, summary.json
 ```
 
-**Inference.** We prepare an inference script `scripts/inference.sh`, where we run a different python script `inference.py` in `python` mode by default:
-```shell
-# single-GPU python-mode launch
-python launch.py --mode python \
-                 --run_file inference.py \
-                 --config configs/default.yaml \
-                 note=tuning_noact \
-                 pretrained_ckpt_path=null \
-```
-Modify `probe` arguments in `configs/default.yaml` to customize the inputs for inference. You can select a checkpoint by specifying either `note` or `pretrained_ckpt_path`. For the former, `note` should align with the corresponding `note` for the training `exp_dir`. For the latter, you shoud assign with a checkpoint folder wherein `pytorch_model.bin` exists.
+`score.py` deletes the evaluator's `infer_qa_processed.json` before every call:
+Beacon3D's `evaluate_qa.py` silently reuses an existing one instead of re-judging. It also
+re-derives the case score from the processed file and asserts it matches the evaluator's
+printout.
 
-**Launch mode.** For explanation of the launch arguments, use `python launch.py --help`. Refer to [SLURM submitit](https://github.com/facebookincubator/submitit) or [Accelerate](https://huggingface.co/docs/accelerate/index) for more information.
+## Citation
 
-
-## Notes
-We manually modify some methods of `accelerate.Accelerator` in `common/misc.py`, including `gather_for_metrics` (fix gathering non-tensor objects), `get_state_dict` (for saving only learnable parameters when calling `save_state`), and `prepare_scheduler` (fix behavior with gradient accumulation).
-
-
-## BibTex
 ```bibtex
 @inproceedings{huang2024embodied,
   title={An Embodied Generalist Agent in 3D World},
@@ -266,4 +144,16 @@ We manually modify some methods of `accelerate.Accelerator` in `common/misc.py`,
   booktitle={Proceedings of the International Conference on Machine Learning (ICML)},
   year={2024}
 }
+
+@inproceedings{huang2025unveiling,
+  title={Unveiling the Mist over 3D Vision-Language Understanding: Object-centric Evaluation with Chain-of-Analysis},
+  author={Huang, Jiangyong and Jia, Baoxiong and Wang, Yan and Zhu, Ziyu and Linghu, Xiongkun and Li, Qing and Zhu, Song-Chun and Huang, Siyuan},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2025}
+}
 ```
+
+## License
+
+LEO is released under the MIT license ([`LICENSE`](LICENSE)). The vendored Beacon3D code
+and data are Apache-2.0 ([`beacon3d/Beacon3D/LICENSE`](beacon3d/Beacon3D/LICENSE)).

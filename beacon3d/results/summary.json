@@ -1,0 +1,178 @@
+{
+ "scannet": {
+  "qa_judge": "gpt-4o-mini-2024-07-18",
+  "metrics": {
+   "case": 52.943722943722946,
+   "object": 11.168831168831169,
+   "EM": 49.00432900432901,
+   "EM-R": 52.2077922077922,
+   "class": 19.144144144144143,
+   "appearance": 63.96396396396396,
+   "geometry": 53.16455696202531,
+   "spatial": 51.885245901639344,
+   "existence": 54.285714285714285,
+   "functionality": 66.66666666666666,
+   "n_cases": 1155,
+   "n_objects": 385
+  },
+  "targets_dropped": 0,
+  "scenes_over_max_obj": []
+ },
+ "3rscan": {
+  "qa_judge": "gpt-4o-mini-2024-07-18",
+  "metrics": {
+   "case": 45.77205882352941,
+   "object": 1.4705882352941175,
+   "EM": 41.911764705882355,
+   "EM-R": 46.44607843137255,
+   "class": 22.282608695652172,
+   "appearance": 46.02272727272727,
+   "geometry": 49.09090909090909,
+   "spatial": 49.34497816593887,
+   "existence": 45.023696682464454,
+   "functionality": null,
+   "n_cases": 816,
+   "n_objects": 272
+  },
+  "targets_dropped": 0,
+  "scenes_over_max_obj": [
+   "a0905fd9-66f7-2272-9dfb-0483fdcc54c7"
+  ]
+ },
+ "multiscan": {
+  "qa_judge": "gpt-4o-mini-2024-07-18",
+  "metrics": {
+   "case": 28.56394129979035,
+   "object": 0.628930817610063,
+   "EM": 25.57651991614256,
+   "EM-R": 27.882599580712785,
+   "class": 7.661290322580644,
+   "appearance": 33.57664233576643,
+   "geometry": 58.333333333333336,
+   "spatial": 27.941176470588236,
+   "existence": 28.389830508474578,
+   "functionality": null,
+   "n_cases": 477,
+   "n_objects": 159
+  },
+  "targets_dropped": 0,
+  "scenes_over_max_obj": []
+ },
+ "overall": {
+  "qa_judge": "gpt-4o-mini-2024-07-18",
+  "pooled": {
+   "case": 45.80269607843137,
+   "object": 5.88235294117647,
+   "EM": 42.07516339869281,
+   "EM-R": 45.54738562091503,
+   "class": 16.55251141552511,
+   "appearance": 52.21014492753623,
+   "geometry": 52.054794520547944,
+   "spatial": 46.156716417910445,
+   "existence": 45.5574912891986,
+   "functionality": 66.66666666666666,
+   "n_cases": 2448,
+   "n_objects": 816
+  },
+  "mean": {
+   "case": 42.426574355680906,
+   "object": 4.422783407245117,
+   "EM": 38.830871208784636,
+   "EM-R": 42.178823406625845,
+   "class": 16.362681054125655,
+   "appearance": 47.85444452415255,
+   "geometry": 53.52959979542258,
+   "spatial": 43.057133512722146,
+   "existence": 42.5664138255511,
+   "functionality": 66.66666666666666
+  }
+ },
+ "scannet_nohint": {
+  "qa_judge": "gpt-4o-mini-2024-07-18",
+  "metrics": {
+   "case": 45.151515151515156,
+   "object": 7.012987012987012,
+   "EM": 41.81818181818181,
+   "EM-R": 44.58874458874459,
+   "class": 14.63963963963964,
+   "appearance": 40.990990990990994,
+   "geometry": 48.10126582278481,
+   "spatial": 51.721311475409834,
+   "existence": 53.87755102040816,
+   "functionality": 100.0,
+   "n_cases": 1155,
+   "n_objects": 385
+  },
+  "targets_dropped": 0,
+  "scenes_over_max_obj": []
+ },
+ "3rscan_nohint": {
+  "qa_judge": "gpt-4o-mini-2024-07-18",
+  "metrics": {
+   "case": 42.46323529411765,
+   "object": 1.8382352941176472,
+   "EM": 39.705882352941174,
+   "EM-R": 43.504901960784316,
+   "class": 26.630434782608692,
+   "appearance": 36.70454545454545,
+   "geometry": 46.59090909090909,
+   "spatial": 46.83406113537117,
+   "existence": 45.023696682464454,
+   "functionality": null,
+   "n_cases": 816,
+   "n_objects": 272
+  },
+  "targets_dropped": 18,
+  "scenes_over_max_obj": [
+   "a0905fd9-66f7-2272-9dfb-0483fdcc54c7"
+  ]
+ },
+ "multiscan_nohint": {
+  "qa_judge": "gpt-4o-mini-2024-07-18",
+  "metrics": {
+   "case": 26.257861635220124,
+   "object": 0.628930817610063,
+   "EM": 22.851153039832283,
+   "EM-R": 26.20545073375262,
+   "class": 10.080645161290324,
+   "appearance": 23.722627737226276,
+   "geometry": 58.333333333333336,
+   "spatial": 27.573529411764707,
+   "existence": 29.66101694915254,
+   "functionality": null,
+   "n_cases": 477,
+   "n_objects": 159
+  },
+  "targets_dropped": 0,
+  "scenes_over_max_obj": []
+ },
+ "overall_nohint": {
+  "qa_judge": "gpt-4o-mini-2024-07-18",
+  "pooled": {
+   "case": 40.573937908496724,
+   "object": 4.044117647058823,
+   "EM": 37.41830065359477,
+   "EM-R": 40.64542483660131,
+   "class": 15.8675799086758,
+   "appearance": 36.19565217391304,
+   "geometry": 48.37328767123288,
+   "spatial": 45.149253731343286,
+   "existence": 45.64459930313589,
+   "functionality": 100.0,
+   "n_cases": 2448,
+   "n_objects": 816
+  },
+  "mean": {
+   "case": 37.95753736028431,
+   "object": 3.1600510415715743,
+   "EM": 34.79173907031842,
+   "EM-R": 38.09969909442717,
+   "class": 17.116906527846215,
+   "appearance": 33.80605472758757,
+   "geometry": 51.008502749009075,
+   "spatial": 42.04296734084857,
+   "existence": 42.85408821734171,
+   "functionality": 100.0
+  }
+ }
+}
