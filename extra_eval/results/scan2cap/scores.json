@@ -1,0 +1,22 @@
+{
+ "pred_dir": "outputs/extra_eval_20261027_210102",
+ "run": {
+  "batch_size": 16,
+  "scene_sort": false,
+  "scene_seed": false,
+  "prefix_cache": false,
+  "pc_type": "pred",
+  "no_hint": false
+ },
+ "n": 2068,
+ "iou_ge_0.25": 1871,
+ "iou_ge_0.5": 1695,
+ "CIDEr@0.25": 76.73345372765665,
+ "BLEU-4@0.25": 41.04406899525538,
+ "METEOR@0.25": 29.15915801881744,
+ "ROUGE-L@0.25": 61.60686773644707,
+ "CIDEr@0.5": 71.66172217972708,
+ "BLEU-4@0.5": 37.947728343331825,
+ "METEOR@0.5": 27.76612362025967,
+ "ROUGE-L@0.5": 57.94470492798045
+}

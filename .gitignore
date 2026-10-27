@@ -171,3 +171,6 @@ test.py
 *.sbatch
 env.sh
 log/
+
+# protected local copies/links of every external dependency (see env.sh)
+deps/

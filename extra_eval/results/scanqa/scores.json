@@ -1,0 +1,19 @@
+{
+ "pred_dir": "outputs/extra_eval_20261027_210102",
+ "run": {
+  "batch_size": 16,
+  "scene_sort": false,
+  "scene_seed": false,
+  "prefix_cache": false,
+  "pc_type": "pred",
+  "no_hint": false
+ },
+ "n": 4675,
+ "EM": 24.21390374331551,
+ "EM-R": 47.31550802139037,
+ "empty_preds": 0,
+ "CIDEr": 101.79723786664674,
+ "BLEU-4": 15.4958473039322,
+ "METEOR": 19.917498212434253,
+ "ROUGE-L": 48.49053002050038
+}

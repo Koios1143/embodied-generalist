@@ -12,6 +12,11 @@ Scan data: ScanNet from LEO's ``pcd_with_global_alignment`` (``LeoBase.load_scan
 3RScan from LEO's ``3RScan-ours-align`` (``LeoBase.load_rscan``), MultiScan from SceneVerse's
 ``MultiScan/{pcd_with_global_alignment,instance_id_to_label}`` (same tuple format; loaded the
 way ``load_rscan`` does). Writes one jsonl row per question to ``--out``.
+
+Speed options (off by default): ``--prefix_cache`` prefills each distinct prompt prefix once
+(``extra_eval/fast_generate.py``; same computation). ``--scene_seed`` seeds the point
+subsampling per scene instead of per question; with ``--no_hint`` all questions of a scene
+then share one prefix.
 """
 
 import argparse
@@ -19,6 +24,7 @@ import json
 import os
 import random
 import sys
+import zlib
 from pathlib import Path
 
 import numpy as np
@@ -36,6 +42,9 @@ from data.dataset_wrapper import LeoObjPadDatasetWrapper  # noqa: E402
 from data.datasets import LeoBase  # noqa: E402
 from model.leo_agent import LeoAgent  # noqa: E402
 
+sys.path.insert(0, str(REPO / 'extra_eval'))
+from fast_generate import generate_prefix_cached  # noqa: E402
+
 # The released scan files are pickled numpy arrays; torch >= 2.6 loads with weights_only=True,
 # so allow exactly the numpy globals needed to rebuild arrays instead of disabling it.
 torch.serialization.add_safe_globals(
@@ -47,6 +56,7 @@ class Beacon3DQA(LeoBase):
     def __init__(self, items, domain, args, hint=True):
         super().__init__()
         self.items, self.domain, self.hint = items, domain, hint
+        self.scene_seed = args.scene_seed
         self.split = 'val'   # no rotation augmentation
         self.num_points, self.max_obj_len = args.num_points, args.max_obj_len
         self.scannet_base, self.rscan_base = args.scannet_base, args.rscan_base
@@ -79,9 +89,10 @@ class Beacon3DQA(LeoBase):
         assert not missing, f"{item['question_id']}: objects {missing} not in scene"
         order = insts + [i for i in obj_pcds.keys() if i not in insts]
         order = order[:self.max_obj_len]
-        # fixed per-question seed: point subsampling in preprocess_pcd is random
-        random.seed(index)
-        np.random.seed(index)
+        # fixed per-question (or per-scene) seed: point subsampling in preprocess_pcd is random
+        seed = zlib.crc32(item['scene_id'].encode()) if self.scene_seed else index
+        random.seed(seed)
+        np.random.seed(seed)
         obj_fts, obj_locs, anchor_loc = self.preprocess_pcd(
             [obj_pcds[i].copy() for i in order], return_anchor=False)
         data_dict = self.get_prompts(instruction=item['question'], situation="")
@@ -132,11 +143,14 @@ def main():
     ap.add_argument('--max_obj_len', type=int, default=60)
     ap.add_argument('--batch_size', type=int, default=16)
     ap.add_argument('--limit', type=int, default=0, help='debug: first N questions per domain')
+    ap.add_argument('--prefix_cache', action='store_true', help='prefill each distinct prefix once')
+    ap.add_argument('--scene_seed', action='store_true', help='seed point subsampling per scene')
     args = ap.parse_args()
     PartialState()   # accelerate's logger needs an initialised state
     torch.manual_seed(0)
     os.makedirs(args.out_dir, exist_ok=True)
     model = build_model(args)
+    generate = (lambda b: generate_prefix_cached(model, b)) if args.prefix_cache else model.generate
     suffix = '_nohint' if args.no_hint else ''
     for domain in args.domains.split(','):
         items = json.load(open(os.path.join(args.beacon_root, 'data', domain, f'{domain}_qa.json')))
@@ -149,7 +163,7 @@ def main():
         with open(out, 'w') as f:
             for batch in tqdm(loader, desc=domain):
                 batch = {k: v.cuda() if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
-                batch = model.generate(batch)
+                batch = generate(batch)
                 for j, pred in enumerate(batch['output_txt']):
                     i = int(batch['idx'][j])
                     it = items[i]

@@ -1,0 +1,33 @@
+{
+ "pred_dir": "outputs/extra_eval_20261027_210102",
+ "run": {
+  "batch_size": 16,
+  "scene_sort": false,
+  "scene_seed": false,
+  "prefix_cache": false,
+  "pc_type": "pred",
+  "no_hint": false
+ },
+ "n": 3519,
+ "EM": 49.78687127024723,
+ "EM-R": 52.429667519181585,
+ "empty_preds": 0,
+ "EM_what": 37.83783783783784,
+ "EM-R_what": 43.24324324324324,
+ "n_what": 1147,
+ "EM_is": 65.6441717791411,
+ "EM-R_is": 66.87116564417178,
+ "n_is": 652,
+ "EM_how": 44.946236559139784,
+ "EM-R_how": 45.806451612903224,
+ "n_how": 465,
+ "EM_can": 66.27218934911242,
+ "EM-R_can": 66.27218934911242,
+ "n_can": 338,
+ "EM_which": 48.717948717948715,
+ "EM-R_which": 49.287749287749286,
+ "n_which": 351,
+ "EM_others": 50.53003533568904,
+ "EM-R_others": 53.533568904593636,
+ "n_others": 566
+}
